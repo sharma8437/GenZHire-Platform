@@ -2,43 +2,33 @@ import { Inngest } from "inngest"
 import { connectDB } from "./db.js"
 import User from "../models/User.js"
 
-
-
-
-
 export const inngest = new Inngest({ id: "GenHire" });
+
 const syncUser = inngest.createFunction(
-    {id:"sync-user"},
-    {event:"clerk/user.created"},
-    async ({event}) =>{
+    { id: "sync-user", triggers: [{ event: "clerk/user.created" }] },  // ✅ triggers inside first arg
+    async ({ event }) => {
         await connectDB()
 
-        const {id, email_addresses, first_name, last_name,image_url} = event.data
+        const { id, email_addresses, first_name, last_name, image_url } = event.data
 
         const newUser = {
-            clerkId:id,
-            email:email_addresses[0]?.email_address,
+            clerkId: id,
+            email: email_addresses[0]?.email_address,
             name: `${first_name || ""} ${last_name || ""}`,
-            profileImage:image_url
+            profileImage: image_url
         }
         await User.create(newUser)
     }
 )
 
-
-const deleteUSerFromDB = inngest.createFunction(
-    {id:"delete-user-from-db"},
-    {event:"clerk/user.deleted"},
-    async({event}) =>{
+const deleteUserFromDB = inngest.createFunction(
+    { id: "delete-user-from-db", triggers: [{ event: "clerk/user.deleted" }] },  // ✅ triggers inside first arg
+    async ({ event }) => {
         await connectDB()
 
-        const {id} = event.data
-
-            await User.deleteOne({clerkId:id})
-
-            //todo: do sth else
+        const { id } = event.data
+        await User.deleteOne({ clerkId: id })
     }
 )
 
-
-export const functions = [syncUser, deleteUSerFromDB]
+export const functions = [syncUser, deleteUserFromDB]
