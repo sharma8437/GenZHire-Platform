@@ -5,6 +5,8 @@ import { connectDB } from "./lib/db.js";
 import cors from "cors"
 import {serve} from "inngest/express"
 import { inngest, functions } from "./lib/inngest.js";
+import { clerkMiddleware } from "@clerk/express";
+import chatRoutes from "./routes/chatRoutes.js";
 
 const app = express();
 const __dirname = path.resolve();
@@ -13,6 +15,8 @@ const __dirname = path.resolve();
 app.use(express.json())
 app.use(cors({origin:ENV.CLIENT_URL, credentials:true}))
 
+app.use(clerkMiddleware()); //this will adds auth field to req object if user is logged in 
+
 // server.js - replace your current inngest route with this
 app.use("/api/inngest", (req, res, next) => {
   if (!["GET", "POST", "PUT"].includes(req.method.toUpperCase())) {
@@ -20,14 +24,17 @@ app.use("/api/inngest", (req, res, next) => {
   }
   return serve({ client: inngest, functions })(req, res, next);
 });
+app.use("/api/chat",chatRoutes)
 
 app.get("/health", (req, res) => {
+
   res.status(200).json({ message: "api is up and running" });
 });
 
-app.get("/book", (req, res) => {
-  res.status(200).json({ message: "book api" });
-});
+
+
+
+
 
 if (ENV.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "frontend/dist")));
