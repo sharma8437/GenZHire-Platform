@@ -13,8 +13,13 @@ const __dirname = path.resolve();
 app.use(express.json())
 app.use(cors({origin:ENV.CLIENT_URL, credentials:true}))
 
-app.use("/api/inngest" , serve({client:inngest, functions}))
-
+// server.js - replace your current inngest route with this
+app.use("/api/inngest", (req, res, next) => {
+  if (!["GET", "POST", "PUT"].includes(req.method.toUpperCase())) {
+    return res.status(405).json({ message: "Method not allowed" });
+  }
+  return serve({ client: inngest, functions })(req, res, next);
+});
 
 app.get("/health", (req, res) => {
   res.status(200).json({ message: "api is up and running" });
