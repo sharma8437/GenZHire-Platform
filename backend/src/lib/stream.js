@@ -1,4 +1,5 @@
 import { StreamChat } from "stream-chat";
+import { StreamClient } from "@stream-io/node-sdk";
 import { ENV } from "./env.js";
 
 
@@ -10,7 +11,8 @@ if(!apiKey || !apiSecret) {
     
 }
 
-export const chatClient = StreamChat.getInstance(apiKey,apiSecret);
+export const chatClient = StreamChat.getInstance(apiKey,apiSecret); // this will we use for chat
+export const streamClient = new StreamClient(apiKey,apiSecret) // this will we use for video call and recordings
 
 export const upsertStreamUser = async (userData)=>{
 
