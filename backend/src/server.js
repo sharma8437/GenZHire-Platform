@@ -7,6 +7,7 @@ import {serve} from "inngest/express"
 import { inngest, functions } from "./lib/inngest.js";
 import { clerkMiddleware } from "@clerk/express";
 import chatRoutes from "./routes/chatRoutes.js";
+import sessionsRoutes from "./routes/sessionsRoutes.js";
 
 const app = express();
 const __dirname = path.resolve();
@@ -25,6 +26,7 @@ app.use("/api/inngest", (req, res, next) => {
   return serve({ client: inngest, functions })(req, res, next);
 });
 app.use("/api/chat",chatRoutes)
+app.use("/api/sessions", sessionsRoutes)
 
 app.get("/health", (req, res) => {
 
